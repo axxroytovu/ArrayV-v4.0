@@ -1,0 +1,64 @@
+package sorts.templates;
+
+import main.ArrayVisualizer;
+
+/*
+ * 
+Copyright (c) Sam Zimmerman 2021.
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+Texts.  A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+ *
+ */
+
+public abstract class DHeapSorting extends Sort {
+    protected DHeapSorting(ArrayVisualizer arrayVisualizer) {
+        super(arrayVisualizer);
+    }
+    
+    private void dSiftDown(int[] array, int root, int dist, int start, double sleep, int order, boolean isMax) {
+        int compareVal = 0;
+        
+        if(isMax) compareVal = -1;
+        else compareVal = 1;
+        
+        int leaf = root * order;
+        
+        for (int child = 0; (leaf < dist) && (child < order); child++) {
+            if (Reads.compareValues(array[start + largest - 1], array[start + leaf - 1]) == compareVal) {
+                largest = leaf;
+            }
+            leaf++;
+        }
+        
+        if (largest != start+root) {
+            Writes.swap(array, start + root - 1, start + largest - 1, 0, true, false)
+            dSiftDown(array, largest, dist, start, sleep, order, isMax)
+        }
+    }
+
+    protected void dHeapify(int[] arr, int low, int high, double sleep, int order, boolean isMax) {
+        int length = high - low;
+        for (int i = length / order; i >= 1; i--) {
+            dSiftDown(arr, i, length, low, sleep, order, isMax);
+        }
+    }
+    
+    // This version of heap sort works for max and min variants, alongside sorting 
+    // partial ranges of an array.
+    protected void dHeapSort(int[] arr, int start, int length, double sleep, int order, boolean isMax) {
+        dHeapify(arr, start, length, sleep, order, isMax);
+     
+        for (int i = length - start; i > 1; i--) {
+            Writes.swap(arr, start, start + i - 1, sleep, true, false);
+            dSiftDown(arr, 1, i - 1, start, sleep, order, isMax);
+        }
+        
+        if(!isMax) {
+            Writes.reversal(arr, start, start + length - 1, 1, true, false);
+        }
+    }
+}
